@@ -1,3 +1,5 @@
+import vlc, pafy
+
 # smartmirror.py
 # requirements
 # requests, feedparser, traceback, Pillow
@@ -62,6 +64,18 @@ icon_lookup = {
     'hail': "assests/Hail.png"  # hail
 }
 
+class Youtube(Frame):
+    def __init__(self, parent, *args, **kwargs):
+        Frame.__init__(self, parent, bg='black')
+        url = "https://youtu.be/fc5EP6aLqWM"
+        self.Instance = vlc.Instance()
+        self.player = self.Instance.media_player_new()
+      #  self.player.set_hwnd(self.label.winfo_id())#tkinter label or frame
+
+        media = self.Instance.media_new(url)
+        self.player.set_media(media)
+        self.player.play()
+
 class Humidity(Frame):
     def __init__(self, parent, *args, **kwargs):
         Frame.__init__(self, parent, bg='black')
@@ -73,7 +87,7 @@ class Humidity(Frame):
         self.temp = ''
         self.tempLbl = Label(self, text=self.temp, font=('Helvetica', large_text_size), fg="white", bg="black")
         self.tempLbl.pack(side=TOP, anchor=E)
-        print('hello World')
+        print('hellow World')
         self.humtick()
 
     def humtick(self):
@@ -84,7 +98,7 @@ class Humidity(Frame):
             # if time string has changed, update it
             if humidity2 != self.humidity:
                 self.humidity = humidity2
-                self.humidityLbl.config(text="Indoor Humidity: "+ str(humidity2) +"%")
+                self.humidityLbl.config(text="Indoor Humidity: "+ str(humidity2))
     
             if temp2 != self.temp:
                 self.temp = temp2
@@ -339,6 +353,9 @@ class FullscreenWindow():
         self.state = False
         self.tk.bind("<Return>", self.toggle_fullscreen)
         self.tk.bind("<Escape>", self.end_fullscreen)
+        # Youtube
+        self.youtube = Youtube(self.bottomFrame)
+        self.youtube.pack(side=LEFT, anchor=N, padx=100, pady=60)
         # Humid & Temp
         self.humidity = Humidity(self.topFrame)
         self.humidity.pack(side=LEFT, anchor=N, padx=100, pady=60)
