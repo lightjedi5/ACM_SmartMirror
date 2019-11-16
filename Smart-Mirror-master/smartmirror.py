@@ -11,9 +11,9 @@ import json
 import traceback
 import sys
 import Adafruit_DHT
-#import feedparser
+import feedparser
 
-#from PIL import Image, ImageTk
+from PIL import Image, ImageTk
 from contextlib import contextmanager
 
 LOCALE_LOCK = threading.Lock()
