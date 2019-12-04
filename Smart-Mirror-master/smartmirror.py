@@ -12,9 +12,13 @@ import traceback
 import sys
 import Adafruit_DHT
 import feedparser
+from gpiozero import LED
+import vlc, pafy
 
 from PIL import Image, ImageTk
 from contextlib import contextmanager
+
+led = LED(21)
 
 LOCALE_LOCK = threading.Lock()
 
@@ -25,8 +29,8 @@ news_country_code = 'us'
 weather_api_token = 'b49f9efa1c21826f29279c909521178d' # create account at https://darksky.net/dev/
 weather_lang = 'en' # see https://darksky.net/dev/docs/forecast for full list of language parameters values
 weather_unit = 'us' # see https://darksky.net/dev/docs/forecast for full list of unit parameters values
-latitude = '43.83167°N' # Set this if IP location lookup does not work for you (must be a string)
-longitude = '111.80611°W' # Set this if IP location lookup does not work for you (must be a string)
+latitude = None # Set this if IP location lookup does not work for you (must be a string)
+longitude = None # Set this if IP location lookup does not work for you (must be a string)
 xlarge_text_size = 94
 large_text_size = 48
 medium_text_size = 28
@@ -62,6 +66,30 @@ icon_lookup = {
     'hail': "assests/Hail.png"  # hail
 }
 
+class Greetings(Frame):
+   def __init__(self, parent, *args, **kwargs):
+       Frame.__init__(self, parent, bg='black')
+       # initialize greeting label
+       self.greeting1 = 'Good Afternoon HackUSU! :)'
+       self.greetingLbl = Label(self, text=self.greeting1, font=('Helvetica', small_text_size), fg="white", bg="black")
+       self.greetingLbl.pack(side=TOP, anchor=E)
+       
+class Youtube(Frame):
+    def __init__(self, parent, *args, **kwargs):
+        Frame.__init__(self, parent, bg='black')
+        url = "https://youtu.be/fc5EP6aLqWM"
+        self.video = pafy.new(url)
+        self.best = self.video.getbest()
+        
+        
+        self.Instance = vlc.Instance()
+        self.player = self.Instance.media_player_new()
+      #  self.player.set_hwnd(self.label.winfo_id())#tkinter label or frame
+
+        media = self.Instance.media_new(self.best.url)
+        self.player.set_media(media)
+        self.player.play()
+        
 class Humidity(Frame):
     def __init__(self, parent, *args, **kwargs):
         Frame.__init__(self, parent, bg='black')
@@ -84,12 +112,20 @@ class Humidity(Frame):
             # if time string has changed, update it
             if humidity2 != self.humidity:
                 self.humidity = humidity2
-                self.humidityLbl.config(text="Indoor Humidity: "+ str(humidity2) +"%")
+                self.humidityLbl.config(text="Indoor Humidity: "+ str(humidity2))
     
             if temp2 != self.temp:
                 self.temp = temp2
                 self.tempLbl.config(text="Indoor Temp: "+ str(temp2) + "C")
-            self.humidityLbl.after(200, self.humtick)
+
+            if (not humidity2 or humidity2 <= 50):
+                led.off()
+            elif (humidity2 and humidity2 > 50):
+                led.on()
+
+            
+                
+            self.humidityLbl.after(100, self.humtick)
 
     
 
@@ -339,6 +375,12 @@ class FullscreenWindow():
         self.state = False
         self.tk.bind("<Return>", self.toggle_fullscreen)
         self.tk.bind("<Escape>", self.end_fullscreen)
+        # Greeting
+        self.greetings = Greetings(self.bottomFrame)
+        self.greetings.pack(side=LEFT, anchor=N, padx=10, pady=10)
+        # Youtube
+        self.youtube = Youtube(self.bottomFrame)
+        self.youtube.pack(side=LEFT, anchor=N, padx=100, pady=60)
         # Humid & Temp
         self.humidity = Humidity(self.topFrame)
         self.humidity.pack(side=LEFT, anchor=N, padx=100, pady=60)
@@ -350,7 +392,7 @@ class FullscreenWindow():
         self.weather.pack(side=LEFT, anchor=N, padx=100, pady=60)
         # news
         self.news = News(self.bottomFrame)
-        self.news.pack(side=LEFT, anchor=S, padx=100, pady=60)
+        self.news.pack(side=LEFT, anchor=W, padx=25, pady=30)
         # calender - removing for now
         # self.calender = Calendar(self.bottomFrame)
         # self.calender.pack(side = RIGHT, anchor=S, padx=100, pady=60)

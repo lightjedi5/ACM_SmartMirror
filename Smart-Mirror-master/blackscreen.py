@@ -68,11 +68,15 @@ class Youtube(Frame):
     def __init__(self, parent, *args, **kwargs):
         Frame.__init__(self, parent, bg='black')
         url = "https://youtu.be/fc5EP6aLqWM"
+        self.video = pafy.new(url)
+        self.best = self.video.getbest()
+        
+        
         self.Instance = vlc.Instance()
         self.player = self.Instance.media_player_new()
       #  self.player.set_hwnd(self.label.winfo_id())#tkinter label or frame
 
-        media = self.Instance.media_new(url)
+        media = self.Instance.media_new(self.best.url)
         self.player.set_media(media)
         self.player.play()
 
@@ -257,7 +261,14 @@ class Weather(Frame):
     @staticmethod
     def convert_kelvin_to_fahrenheit(kelvin_temp):
         return 1.8 * (kelvin_temp - 273) + 32
-
+    
+class Greetings(Frame):
+   def __init__(self, parent, *args, **kwargs):
+       Frame.__init__(self, parent, bg='black')
+       # initialize greeting label
+       self.greeting1 = 'Good Afternoon HackUSU! :)'
+       self.greetingLbl = Label(self, text=self.greeting1, font=('Helvetica', small_text_size), fg="white", bg="black")
+       self.greetingLbl.pack(side=TOP, anchor=E)
 
 class News(Frame):
     def __init__(self, parent, *args, **kwargs):
@@ -353,6 +364,9 @@ class FullscreenWindow():
         self.state = False
         self.tk.bind("<Return>", self.toggle_fullscreen)
         self.tk.bind("<Escape>", self.end_fullscreen)
+        # Greeting
+        self.greetings = Greetings(self.bottomFrame)
+        self.greetings.pack(side=LEFT, anchor=S, padx=100, pady=60)
         # Youtube
         self.youtube = Youtube(self.bottomFrame)
         self.youtube.pack(side=LEFT, anchor=N, padx=100, pady=60)
