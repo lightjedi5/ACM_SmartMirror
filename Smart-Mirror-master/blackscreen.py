@@ -1,3 +1,5 @@
+import vlc, pafy
+
 # smartmirror.py
 # requirements
 # requests, feedparser, traceback, Pillow
@@ -12,13 +14,9 @@ import traceback
 import sys
 import Adafruit_DHT
 import feedparser
-from gpiozero import LED
-import vlc, pafy
 
 from PIL import Image, ImageTk
 from contextlib import contextmanager
-
-led = LED(21)
 
 LOCALE_LOCK = threading.Lock()
 
@@ -66,14 +64,6 @@ icon_lookup = {
     'hail': "assests/Hail.png"  # hail
 }
 
-class Greetings(Frame):
-   def __init__(self, parent, *args, **kwargs):
-       Frame.__init__(self, parent, bg='black')
-       # initialize greeting label
-       self.greeting1 = 'Good Afternoon HackUSU! :)'
-       self.greetingLbl = Label(self, text=self.greeting1, font=('Helvetica', small_text_size), fg="white", bg="black")
-       self.greetingLbl.pack(side=TOP, anchor=E)
-       
 class Youtube(Frame):
     def __init__(self, parent, *args, **kwargs):
         Frame.__init__(self, parent, bg='black')
@@ -89,7 +79,7 @@ class Youtube(Frame):
         media = self.Instance.media_new(self.best.url)
         self.player.set_media(media)
         self.player.play()
-        
+
 class Humidity(Frame):
     def __init__(self, parent, *args, **kwargs):
         Frame.__init__(self, parent, bg='black')
@@ -101,7 +91,7 @@ class Humidity(Frame):
         self.temp = ''
         self.tempLbl = Label(self, text=self.temp, font=('Helvetica', large_text_size), fg="white", bg="black")
         self.tempLbl.pack(side=TOP, anchor=E)
-        print('hello World')
+        print('hellow World')
         self.humtick()
 
     def humtick(self):
@@ -117,15 +107,7 @@ class Humidity(Frame):
             if temp2 != self.temp:
                 self.temp = temp2
                 self.tempLbl.config(text="Indoor Temp: "+ str(temp2) + "C")
-
-            if (not humidity2 or humidity2 <= 50):
-                led.off()
-            elif (humidity2 and humidity2 > 50):
-                led.on()
-
-            
-                
-            self.humidityLbl.after(100, self.humtick)
+            self.humidityLbl.after(200, self.humtick)
 
     
 
@@ -279,7 +261,14 @@ class Weather(Frame):
     @staticmethod
     def convert_kelvin_to_fahrenheit(kelvin_temp):
         return 1.8 * (kelvin_temp - 273) + 32
-
+    
+class Greetings(Frame):
+   def __init__(self, parent, *args, **kwargs):
+       Frame.__init__(self, parent, bg='black')
+       # initialize greeting label
+       self.greeting1 = 'Good Afternoon HackUSU! :)'
+       self.greetingLbl = Label(self, text=self.greeting1, font=('Helvetica', small_text_size), fg="white", bg="black")
+       self.greetingLbl.pack(side=TOP, anchor=E)
 
 class News(Frame):
     def __init__(self, parent, *args, **kwargs):
@@ -377,7 +366,7 @@ class FullscreenWindow():
         self.tk.bind("<Escape>", self.end_fullscreen)
         # Greeting
         self.greetings = Greetings(self.bottomFrame)
-        self.greetings.pack(side=LEFT, anchor=N, padx=10, pady=10)
+        self.greetings.pack(side=LEFT, anchor=S, padx=100, pady=60)
         # Youtube
         self.youtube = Youtube(self.bottomFrame)
         self.youtube.pack(side=LEFT, anchor=N, padx=100, pady=60)
@@ -392,7 +381,7 @@ class FullscreenWindow():
         self.weather.pack(side=LEFT, anchor=N, padx=100, pady=60)
         # news
         self.news = News(self.bottomFrame)
-        self.news.pack(side=LEFT, anchor=W, padx=25, pady=30)
+        self.news.pack(side=LEFT, anchor=S, padx=100, pady=60)
         # calender - removing for now
         # self.calender = Calendar(self.bottomFrame)
         # self.calender.pack(side = RIGHT, anchor=S, padx=100, pady=60)
